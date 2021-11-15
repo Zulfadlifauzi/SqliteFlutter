@@ -21,9 +21,9 @@ class Note {
   final int? id;
   final bool? isImportant;
   final int? number;
-  final String? title;
-  final String? description;
-  final DateTime? createdTime;
+  final String title;
+  final String description;
+  final DateTime createdTime;
 
   const Note({
     this.id,
@@ -48,7 +48,7 @@ class Note {
         number: number ?? this.number,
         title: title ?? this.title,
         description: description ?? this.description,
-        createdTime: createdTime ?? createdTime,
+        createdTime: createdTime,
       );
 
   static Note fromJson(Map<String, Object?> json) => Note(
@@ -67,6 +67,6 @@ class Note {
         NoteFields.isImportant: isImportant! ? 1 : 0,
         NoteFields.number: number,
         NoteFields.description: description,
-        NoteFields.time: createdTime!.toIso8601String(),
+        NoteFields.time: createdTime.toIso8601String(),
       };
 }
