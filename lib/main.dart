@@ -93,6 +93,7 @@ class _HomePageState extends State<HomePage> {
                       height: 20,
                     ),
                     ElevatedButton(
+                      style: ElevatedButton.styleFrom(primary: Colors.black),
                       onPressed: () async {
                         // Save new journal
                         if (id == null) {
@@ -110,7 +111,10 @@ class _HomePageState extends State<HomePage> {
                         // Close the bottom sheet
                         Navigator.of(context).pop();
                       },
-                      child: Text(id == null ? 'Create New' : 'Update'),
+                      child: Text(
+                        id == null ? 'Create New' : 'Update',
+                        style: TextStyle(color: Colors.white),
+                      ),
                     )
                   ],
                 ),
@@ -136,7 +140,7 @@ class _HomePageState extends State<HomePage> {
   void _deleteItem(int id) async {
     await SQLHelper.deleteItem(id);
     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-      content: Text('Successfully deleted a journal!'),
+      content: Text('Successfully delete!'),
     ));
     _refreshJournals();
   }
@@ -145,7 +149,12 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Kindacode.com'),
+        title: const Text(
+          'SQlite Flutter',
+          style: TextStyle(color: Colors.white),
+        ),
+        centerTitle: true,
+        backgroundColor: Colors.black,
       ),
       body: _isLoading
           ? const Center(
@@ -178,7 +187,11 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
       floatingActionButton: FloatingActionButton(
-        child: const Icon(Icons.add),
+        backgroundColor: Colors.black,
+        child: const Icon(
+          Icons.add,
+          color: Colors.white,
+        ),
         onPressed: () => _showForm(null),
       ),
     );

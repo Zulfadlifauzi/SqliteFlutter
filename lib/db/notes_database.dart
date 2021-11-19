@@ -26,7 +26,7 @@ class NotesDatabase {
     const integerType = 'INTEGER NOT NULL';
     const textType = 'TEXT NOT NULL';
 
-    await db.execute('''
+    await db.execute("""
     CREATE TABLE $tableNotes(
       ${NoteFields.id}$idType,
       ${NoteFields.isImportant}$boolType,
@@ -35,7 +35,7 @@ class NotesDatabase {
       ${NoteFields.description}$textType,
       ${NoteFields.time}$textType,
     )
-    ''');
+    """);
   }
 
   Future<Note> create(Note note) async {
