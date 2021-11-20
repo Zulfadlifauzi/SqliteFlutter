@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:sqliteflutter/db/notes_database.dart';
 import 'package:sqliteflutter/model/note.dart';
 import 'package:sqliteflutter/screens/edit_note.dart';
+import 'package:sqliteflutter/sql_helper.dart';
 
 class NoteDetailPage extends StatefulWidget {
   final int noteId;
@@ -19,29 +20,126 @@ class NoteDetailPage extends StatefulWidget {
 }
 
 class _NoteDetailPageState extends State<NoteDetailPage> {
+  final TextEditingController _titleController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
+
   late Note note;
   bool isLoading = false;
+  List<Map<String, dynamic>> _journals = [];
+  bool _isLoading = true;
 
-  @override
-  void initState() {
-    super.initState();
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   refreshNote();
+  // }
 
-    refreshNote();
+  void _refreshJournals() async {
+    final data = await SQLHelper.getItems();
+    setState(() {
+      _journals = data;
+      _isLoading = false;
+    });
   }
 
-  Future refreshNote() async {
-    setState(() => isLoading = true);
+  // Future refreshNote() async {
+  //   setState(() => isLoading = true);
 
-    note = await NotesDatabase.instance.readNote(widget.noteId);
+  //   note = await NotesDatabase.instance.readNote(widget.noteId);
 
-    setState(() => isLoading = false);
+  //   setState(() => isLoading = false);
+  // }
+
+  void _showForm(int? id) async {
+    if (id != null) {
+      // id == null -> create new item
+      // id != null -> update an existing item
+      final existingJournal =
+          _journals.firstWhere((element) => element['id'] == id);
+      _titleController.text = existingJournal['title'];
+      _descriptionController.text = existingJournal['description'];
+    }
+
+    showModalBottomSheet(
+        context: context,
+        elevation: 5,
+        builder: (_) => Container(
+              padding: const EdgeInsets.all(15),
+              width: double.infinity,
+              height: 300,
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    TextField(
+                      controller: _titleController,
+                      decoration: const InputDecoration(hintText: 'Title'),
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    TextField(
+                      controller: _descriptionController,
+                      decoration:
+                          const InputDecoration(hintText: 'Description'),
+                    ),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(primary: Colors.black),
+                      onPressed: () async {
+                        // Save new journal
+                        if (id == null) {
+                          await _addItem();
+                        }
+
+                        if (id != null) {
+                          await _updateItem(id);
+                        }
+
+                        // Clear the text fields
+                        _titleController.text = '';
+                        _descriptionController.text = '';
+
+                        // Close the bottom sheet
+                        Navigator.of(context).pop();
+                      },
+                      child: Text(
+                        id == null ? 'Create New' : 'Update',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    )
+                  ],
+                ),
+              ),
+            ));
+  }
+
+  Future<void> _addItem() async {
+    await SQLHelper.createItem(
+        _titleController.text, _descriptionController.text);
+    _refreshJournals();
+  }
+
+  Future<void> _updateItem(int id) async {
+    await SQLHelper.updateItem(
+        id, _titleController.text, _descriptionController.text);
+    _refreshJournals();
+  }
+
+  void _deleteItem(int id) async {
+    await SQLHelper.deleteItem(id);
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+      content: Text('Successfully delete!'),
+    ));
+    _refreshJournals();
   }
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(
-          actions: [editButton(), deleteButton()],
-        ),
+        appBar: AppBar(),
         body: isLoading
             ? Center(child: CircularProgressIndicator())
             : Padding(
@@ -49,47 +147,20 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
                 child: ListView(
                   padding: EdgeInsets.symmetric(vertical: 8),
                   children: [
-                    Text(
-                      note.title,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    TextField(
+                      controller: _titleController,
+                      decoration: const InputDecoration(hintText: 'Title'),
                     ),
-                    SizedBox(height: 8),
-                    Text(
-                      DateFormat.yMMMd().format(note.createdTime),
-                      style: TextStyle(color: Colors.white38),
+                    const SizedBox(
+                      height: 10,
                     ),
-                    SizedBox(height: 8),
-                    Text(
-                      note.description,
-                      style: TextStyle(color: Colors.white70, fontSize: 18),
-                    )
+                    TextField(
+                      controller: _descriptionController,
+                      decoration:
+                          const InputDecoration(hintText: 'Description'),
+                    ),
                   ],
                 ),
               ),
-      );
-
-  Widget editButton() => IconButton(
-      icon: Icon(Icons.edit_outlined),
-      onPressed: () async {
-        if (isLoading) return;
-
-        await Navigator.of(context).push(MaterialPageRoute(
-          builder: (context) => AddEditingNotes(note: note),
-        ));
-
-        refreshNote();
-      });
-
-  Widget deleteButton() => IconButton(
-        icon: Icon(Icons.delete),
-        onPressed: () async {
-          await NotesDatabase.instance.delete(widget.noteId);
-
-          Navigator.of(context).pop();
-        },
       );
 }

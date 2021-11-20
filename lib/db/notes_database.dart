@@ -21,7 +21,7 @@ class NotesDatabase {
   }
 
   Future _createDB(Database db, int version) async {
-    const idType = 'INTEGER PRIMARY KEY AUTOINCREMENT';
+    const idType = 'INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL';
     const boolType = 'BOOLEN NOT NULL';
     const integerType = 'INTEGER NOT NULL';
     const textType = 'TEXT NOT NULL';

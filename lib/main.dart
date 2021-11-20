@@ -1,5 +1,7 @@
 // main.dart
 import 'package:flutter/material.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:sqliteflutter/screens/note_detail.dart';
 
 import 'sql_helper.dart';
 
@@ -161,29 +163,45 @@ class _HomePageState extends State<HomePage> {
               child: CircularProgressIndicator(),
             )
           : ListView.builder(
+              // crossAxisCount: 4,
+              // mainAxisSpacing: 4,
+              // crossAxisSpacing: 4,
+              // staggeredTileBuilder: (index) => const StaggeredTile.fit(2),
               itemCount: _journals.length,
               itemBuilder: (context, index) => Card(
                 color: Colors.orange[200],
-                margin: const EdgeInsets.all(15),
-                child: ListTile(
-                    title: Text(_journals[index]['title']),
-                    subtitle: Text(_journals[index]['description']),
-                    trailing: SizedBox(
-                      width: 100,
-                      child: Row(
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.edit),
-                            onPressed: () => _showForm(_journals[index]['id']),
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.delete),
-                            onPressed: () =>
-                                _deleteItem(_journals[index]['id']),
-                          ),
-                        ],
-                      ),
-                    )),
+                margin: const EdgeInsets.only(
+                    left: 15, right: 15, bottom: 5, top: 15),
+                child: GestureDetector(
+                  onTap: () {
+                    // {
+                    //   Navigator.of(context).push(MaterialPageRoute(
+                    //     builder: (context) =>
+                    //         NoteDetailPage(noteId: _journals[index]['id']),
+                    //   ));
+                    // }
+                  },
+                  child: ListTile(
+                      title: Text(_journals[index]['title']),
+                      subtitle: Text(_journals[index]['description']),
+                      trailing: SizedBox(
+                        width: 100,
+                        child: Row(
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.edit),
+                              onPressed: () =>
+                                  _showForm(_journals[index]['id']),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.delete),
+                              onPressed: () =>
+                                  _deleteItem(_journals[index]['id']),
+                            ),
+                          ],
+                        ),
+                      )),
+                ),
               ),
             ),
       floatingActionButton: FloatingActionButton(

@@ -17,7 +17,7 @@ class SQLHelper {
 
   static Future<sql.Database> db() async {
     return sql.openDatabase(
-      'kindacode.db',
+      'fauzi.db',
       version: 1,
       onCreate: (sql.Database database, int version) async {
         await createTables(database);
@@ -69,8 +69,8 @@ class SQLHelper {
     final db = await SQLHelper.db();
     try {
       await db.delete("items", where: "id = ?", whereArgs: [id]);
-    } catch (err) {
-      debugPrint("Something went wrong when deleting an item: $err");
+    } catch (error) {
+      debugPrint("Something went wrong when deleting an item: $error");
     }
   }
 }
